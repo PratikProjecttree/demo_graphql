@@ -30,8 +30,9 @@ namespace demo_graphql.Controllers
                 _response.responseMessage.Add(new ResponseMessage() { message = "Invalid syntax", type = "E" });
                 return _response;
             }
-
+            // get all query list
             var queryList = GLInspector.GetTopLevelFieldNames(requestModel.query).ToArray();
+
             // Routing to Hasura
             var _getProcessRequest = await _dapperService.QueryFirstOrDefaultAsync<string>("select * from mds.fn_process_request(@LoginPersonId, @queryList);", new { LoginPersonId, queryList });
             var getProcessRequest = JsonSerializer.Deserialize<GLRoutingModel>(_getProcessRequest ?? "");
@@ -62,6 +63,7 @@ namespace demo_graphql.Controllers
             response.EnsureSuccessStatusCode();
             var gLReponse = await response.Content.ReadAsStringAsync();
 
+            //Response convert
             var gLReponseModel = JsonSerializer.Deserialize<GLReponseModel>(gLReponse);
 
             _response.data = gLReponseModel.data;
