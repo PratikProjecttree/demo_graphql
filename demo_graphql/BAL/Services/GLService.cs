@@ -61,10 +61,10 @@ namespace demo_graphql.Controllers
             request.Content = content;
             var response = await _httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
-            var gLReponse = await response.Content.ReadAsStringAsync();
+            var gLResponse = await response.Content.ReadAsStringAsync();
 
             //Response convert
-            var gLReponseModel = JsonSerializer.Deserialize<GLReponseModel>(gLReponse);
+            var gLReponseModel = JsonSerializer.Deserialize<GLReponseModel>(gLResponse);
 
             _response.data = gLReponseModel.data;
             if (!gLReponseModel.succeeded)
