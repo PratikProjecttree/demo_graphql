@@ -29,7 +29,7 @@ namespace demo_graphql.Extension
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
                 var response = new Response();
-                response .responseMessage.Add(new ResponseMessage() { message = ex.Message, type = "E" });
+                response .responseMessages.Add(new ResponseMessage() { message = ex.Message, type = "E" });
 
                 var json = JsonSerializer.Serialize(response);
                 await context.Response.WriteAsync(json);

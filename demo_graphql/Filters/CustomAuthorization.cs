@@ -78,7 +78,7 @@ namespace demo_graphql.Filters
         {
             context.HttpContext.Response.StatusCode = 401;
             var errorResponse = new Response();
-            errorResponse.responseMessage.Add(new ResponseMessage
+            errorResponse.responseMessages.Add(new ResponseMessage
             {
                 type = "E",
                 message = message

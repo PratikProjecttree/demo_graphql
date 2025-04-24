@@ -27,7 +27,7 @@ namespace demo_graphql.Controllers
             if (!GLInspector.IsValidGraphQLSyntax(requestModel.query))
             {
                 _response.data = null;
-                _response.responseMessage.Add(new ResponseMessage() { message = "Invalid syntax", type = "E" });
+                _response.responseMessages.Add(new ResponseMessage() { message = "Invalid syntax", type = "E" });
                 return _response;
             }
             // get all query list
@@ -68,9 +68,9 @@ namespace demo_graphql.Controllers
 
             _response.data = gLReponseModel.data;
             if (!gLReponseModel.succeeded)
-                _response.responseMessage = gLReponseModel.errors?.Select(x => new ResponseMessage() { type = "E", message = x?.message }).ToList();
+                _response.responseMessages = gLReponseModel.errors?.Select(x => new ResponseMessage() { type = "E", message = x?.message }).ToList();
             else
-                _response.responseMessage.Add(new ResponseMessage() { type = "S", message = "Success" });
+                _response.responseMessages.Add(new ResponseMessage() { type = "S", message = "Success" });
 
             return _response;
         }
