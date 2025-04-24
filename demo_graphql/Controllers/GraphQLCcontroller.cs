@@ -1,9 +1,4 @@
-using System.Text;
-using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using GraphQLParser;
-using GraphQLParser.Exceptions;
 using demo_graphql.Models;
 
 namespace demo_graphql.Controllers

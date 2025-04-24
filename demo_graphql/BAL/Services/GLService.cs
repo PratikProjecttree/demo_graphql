@@ -1,22 +1,18 @@
-
-using System.Text;
 using System.Text.Json;
 using demo_graphql.Models;
-using Microsoft.Extensions.Options;
+using static demo_graphql.Controllers.QueryInspector;
 
 namespace demo_graphql.Controllers
 {
     public class GLService : IGLService
     {
-        private readonly GraphQLConfigurationModel _config;
-        private readonly HttpClient _httpClient;
         private readonly IDapperService _dapperService;
+        private readonly IHasuraService _hasuraService;
 
-        public GLService(IOptions<GraphQLConfigurationModel> config, HttpClient httpClient, IDapperService dapperService)
+        public GLService(IDapperService dapperService, IHasuraService hasuraService)
         {
-            _config = config.Value;
-            _httpClient = httpClient;
             _dapperService = dapperService;
+            _hasuraService = hasuraService;
         }
 
         public async Task<Response> Post(GraphQLRequestModel requestModel, IHeaderDictionary additionalHeaders, int LoginPersonId)
@@ -34,43 +30,22 @@ namespace demo_graphql.Controllers
             var queryList = GLInspector.GetTopLevelFieldNames(requestModel.query).ToArray();
 
             // Routing to Hasura
-            var _getProcessRequest = await _dapperService.QueryFirstOrDefaultAsync<string>("select * from mds.fn_process_request(@LoginPersonId, @queryList);", new { LoginPersonId, queryList });
+            var _getProcessRequest = await _dapperService.QueryFirstOrDefaultAsync<string>(PostGresQuery.fn_process_request, new { LoginPersonId, queryList });
             var getProcessRequest = JsonSerializer.Deserialize<GLRoutingModel>(_getProcessRequest ?? "");
 
             // validations
-            if ("workflow,custom".ToLower().Contains(getProcessRequest?.category?.ToLower()))
+            var categories = new HashSet<string>
+            {
+                Category.Workflow,
+                Category.Custom,
+            };
+            if (categories.Contains(getProcessRequest?.category?.ToLower()))
             {
 
             }
 
-            // Request hasura
-            var request = new HttpRequestMessage(HttpMethod.Post, _config.url);
-
-            foreach (var header in _config.headers)
-            {
-                request.Headers.Add(header.key, header.value);
-            }
-            foreach (var header in additionalHeaders.Where(x => x.Key.StartsWith("hasura-", StringComparison.CurrentCultureIgnoreCase)))
-            {
-                request.Headers.Add(header.Key, header.Value.ToString());
-            }
-
-            var json = JsonSerializer.Serialize(requestModel);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            request.Content = content;
-            var response = await _httpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            var gLResponse = await response.Content.ReadAsStringAsync();
-
-            //Response convert
-            var gLReponseModel = JsonSerializer.Deserialize<GLReponseModel>(gLResponse);
-
-            _response.data = gLReponseModel.data;
-            if (!gLReponseModel.succeeded)
-                _response.responseMessages = gLReponseModel.errors?.Select(x => new ResponseMessage() { type = "E", message = x?.message }).ToList();
-            else
-                _response.responseMessages.Add(new ResponseMessage() { type = "S", message = "Success" });
+            //hasura request
+            _response = await _hasuraService.Post(requestModel, additionalHeaders, LoginPersonId);
 
             return _response;
         }

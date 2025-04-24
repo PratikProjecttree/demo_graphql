@@ -1,7 +1,7 @@
 namespace demo_graphql.Models
 {
 
-    public class GLReponseModel
+    public class GLResponseModel
     {
         public bool succeeded { get { return errors == null ? true : false; } }
         public object? data { get; set; }
