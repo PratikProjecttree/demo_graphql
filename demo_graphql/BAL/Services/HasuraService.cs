@@ -24,7 +24,7 @@ namespace demo_graphql.Controllers
             // Request hasura
             var request = new HttpRequestMessage(HttpMethod.Post, _config.url);
 
-            foreach (var header in _config.headers)
+            foreach (var header in _config.headers ?? [])
             {
                 request.Headers.Add(header.key, header.value);
             }
