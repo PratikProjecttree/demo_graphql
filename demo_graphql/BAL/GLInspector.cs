@@ -104,27 +104,25 @@ namespace demo_graphql.Controllers
 
         public static Dictionary<string, object> ExtractFilterFieldsWithValues(string query)
         {
-            // Initialize the filter fields dictionary
             var filterFields = new Dictionary<string, object>();
 
             // Parse the GraphQL query
             var document = Parser.Parse(query);
 
-            // Iterate over the document definitions (operations or fragments)
+            // Go through all definitions
             foreach (var definition in document.Definitions)
             {
                 if (definition is GraphQLOperationDefinition operation)
                 {
-                    foreach (var selection in operation.SelectionSet.Selections)
+                    foreach (var selection in operation.SelectionSet?.Selections ?? Enumerable.Empty<ASTNode>())
                     {
-                        if (selection is GraphQLField field)
+                        if (selection is GraphQLField field && field.Arguments != null)
                         {
-                            foreach (var argument in field?.Arguments)
+                            foreach (var argument in field.Arguments)
                             {
-                                // Look for the where argument
-                                if (argument.Name.StringValue == "where" && argument.Value is GraphQLObjectValue filterValue)
+                                if (argument?.Name?.StringValue == "where" &&
+                                    argument.Value is GraphQLObjectValue filterValue)
                                 {
-                                    // Extract filter fields from the GraphQL query
                                     TraverseObjectValue(filterValue, filterFields);
                                 }
                             }
@@ -133,58 +131,37 @@ namespace demo_graphql.Controllers
                 }
             }
 
-            // Return the dictionary containing the extracted filter fields and values
             return filterFields;
         }
 
         // Recursively traverse and collect filter fields and their values
-        private static void TraverseObjectValue(GraphQLObjectValue obj, Dictionary<string, object> filterFields)
+        private static void TraverseObjectValue(GraphQLObjectValue obj, Dictionary<string, object> result)
         {
             foreach (var field in obj.Fields)
             {
-                var fieldName = field.Name.StringValue;
-                object fieldValue = null;
+                var key = field.Name.StringValue;
 
-                // If the field value is another object (e.g., { _eq: value, _in: value })
-                if (field.Value is GraphQLObjectValue nestedObject)
+                if (field.Value is GraphQLObjectValue nestedObj)
                 {
-                    // Iterate through the nested fields (operations like _eq, _in)
-                    foreach (var nestedField in nestedObject.Fields)
+                    // If there are multiple conditions (_eq, _in, etc.), pick the first one
+                    foreach (var cond in nestedObj.Fields)
                     {
-                        var operationName = nestedField.Name.StringValue; // e.g., _eq, _in
-                        if (nestedField.Value is GraphQLIntValue intValue)
+                        object? value = cond.Value switch
                         {
-                            fieldValue = intValue.Value;
-                            break;  // Only take the first operation value
-                        }
-                        else if (nestedField.Value is GraphQLStringValue stringValue)
-                        {
-                            fieldValue = stringValue.Value;
-                            break;  // Only take the first operation value
-                        }
+                            GraphQLIntValue intVal => int.Parse(intVal.Value),
+                            GraphQLStringValue strVal => strVal.Value,
+                            GraphQLBooleanValue boolVal => boolVal.Value,
+                            GraphQLFloatValue floatVal => float.Parse(floatVal.Value),
+                            _ => null
+                        };
+                        result[key] = value;
+                        break; // Only take the first condition
                     }
                 }
-                else if (field.Value is GraphQLStringValue stringValue)
+                else
                 {
-                    fieldValue = stringValue.Value;
-                }
-                else if (field.Value is GraphQLIntValue intValue)
-                {
-                    fieldValue = intValue.Value;
-                }
-                else if (field.Value is GraphQLBooleanValue boolValue)
-                {
-                    fieldValue = boolValue.Value;
-                }
-                else if (field.Value is GraphQLFloatValue floatValue)
-                {
-                    fieldValue = floatValue.Value;
-                }
-
-                // If the field has a valid value, add it to the dictionary
-                if (fieldValue != null)
-                {
-                    filterFields[fieldName] = fieldValue;
+                    // Direct value, if not wrapped in _eq, _in, etc.
+                    result[key] = field.Value.ToString();
                 }
             }
         }
