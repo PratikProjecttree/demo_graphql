@@ -1,5 +1,7 @@
 using System.Text.Json;
 using demo_graphql.Models;
+using GraphQLParser;
+using GraphQLParser.AST;
 using static demo_graphql.Controllers.QueryInspector;
 
 namespace demo_graphql.Controllers
@@ -128,6 +130,19 @@ namespace demo_graphql.Controllers
                             return _response;
                         }
                     }
+                }
+            }
+
+            // Validate update mutation
+            if (operationType == QueryType.Mutation && requestModel.query.Contains("update_"))
+            {
+                var validationMessages = ValidateUpdateMutation(requestModel.query);
+
+                if (validationMessages.Any(m => m.type == "E"))
+                {
+                    _response.data = null;
+                    _response.responseMessages.AddRange(validationMessages);
+                    return _response;
                 }
             }
 
@@ -298,5 +313,70 @@ namespace demo_graphql.Controllers
             return responseMessages;
         }
 
+        public static List<ResponseMessage> ValidateUpdateMutation(string query)
+        {
+            var responseMessages = new List<ResponseMessage>();
+
+            var document = Parser.Parse(query);
+
+            // Extract operation definitions
+            var operationDefinition = document.Definitions.OfType<GraphQLOperationDefinition>().FirstOrDefault();
+
+            if (operationDefinition != null)
+            {
+                // Extract the selection sets from the operation
+                foreach (var selection in operationDefinition.SelectionSet.Selections.OfType<GraphQLField>())
+                {
+                    // Check if the selection name matches the dynamic operation (e.g., update_mds_departments)
+                    if (selection.Name.StringValue.StartsWith("update_"))
+                    {
+                        // Check if the 'where' argument exists
+                        var whereArgument = selection.Arguments.FirstOrDefault(arg => arg.Name.StringValue == "where");
+                        if (whereArgument != null && whereArgument.Value is GraphQLObjectValue whereCondition)
+                        {
+                            // Check for forbidden conditions in the 'where' condition
+                            if (ContainsForbiddenConditions(whereCondition))
+                            {
+                                responseMessages.Add(new ResponseMessage
+                                {
+                                    message = "The 'where' condition can only contain '_eq', '_in', '_and' operators. Other operators are not allowed in update.",
+                                    type = "E"
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            return responseMessages;
+        }
+
+        // Helper method to check for forbidden conditions
+        private static bool ContainsForbiddenConditions(GraphQLObjectValue whereCondition)
+        {
+            var allowedOperators = new List<string> { "_eq", "_in", "_and" };
+
+            foreach (var field in whereCondition?.Fields)
+            {
+                var fieldName = field.Name.StringValue; // Always use StringValue!
+
+                // Check if field is an operator (starts with '_')
+                if (fieldName.StartsWith("_"))
+                {
+                    if (!allowedOperators.Contains(fieldName))
+                    {
+                        return true; // Found forbidden operator
+                    }
+                }
+
+                // Recursively check nested objects
+                if (field.Value is GraphQLObjectValue nestedObject && ContainsForbiddenConditions(nestedObject))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }
