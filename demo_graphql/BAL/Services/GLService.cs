@@ -8,11 +8,13 @@ namespace demo_graphql.Controllers
     {
         private readonly IDapperService _dapperService;
         private readonly IHasuraService _hasuraService;
+        private readonly IWorkFlowService _workFlowService;
 
-        public GLService(IDapperService dapperService, IHasuraService hasuraService)
+        public GLService(IDapperService dapperService, IHasuraService hasuraService, IWorkFlowService workFlowService)
         {
             _dapperService = dapperService;
             _hasuraService = hasuraService;
+            _workFlowService = workFlowService;
         }
 
         public async Task<Response> Post(GraphQLRequestModel requestModel, IHeaderDictionary additionalHeaders, int LoginPersonId)
@@ -40,7 +42,7 @@ namespace demo_graphql.Controllers
                 return _response;
             }
 
-            foreach (var getProcessRequest in getProcessRequestList)
+            foreach (var getProcessRequest in getProcessRequestList ?? new List<GLRoutingModel>())
             {
 
                 if (getProcessRequest.category == Category.Default && operationType == QueryType.Mutation)
@@ -65,6 +67,21 @@ namespace demo_graphql.Controllers
                             _response.responseMessages.AddRange(validationResponse.responseMessages);
                             return _response;
                         }
+                    }
+                    else
+                    {
+                        _response.data = null;
+                        _response.responseMessages.Add(new ResponseMessage() { message = "Workflow meta is not found", type = "E" });
+                        return _response;
+                    }
+                }
+
+                if (getProcessRequest.category == Category.Workflow && operationType == QueryType.Query)
+                {
+                    if (getProcessRequest.workflow_meta != null)
+                    {
+                        _response = await _workFlowService.Request(getProcessRequest.workflow_meta ?? new WorkflowModel());
+                        return _response;
                     }
                     else
                     {

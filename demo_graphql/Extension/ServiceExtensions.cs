@@ -15,6 +15,7 @@ public static class ServiceExtensions
         services.AddScoped<IDapperService, DapperService>();
         services.AddScoped<IGLService, GLService>();
         services.AddScoped<IHasuraService, HasuraService>();
+        services.AddScoped<IWorkFlowService, WorkFlowService>();
     }
 
     public static void ConfigureSwagger(this IServiceCollection services)
