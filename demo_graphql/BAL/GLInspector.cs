@@ -62,6 +62,7 @@ namespace demo_graphql.Controllers
                         {
                             if (argument.Name.ToString() == "objects")
                             {
+                                // Check if the value is a list of objects (GraphQLListValue)
                                 if (argument.Value is GraphQLListValue listValue)
                                 {
                                     // Iterate over each object in the list of objects
@@ -80,6 +81,22 @@ namespace demo_graphql.Controllers
                                         // Add the object data to the result list
                                         result.Add(objectData);
                                     }
+                                }
+                                // Handle the case when the value is a single object (GraphQLObjectValue)
+                                else if (argument.Value is GraphQLObjectValue objectValue)
+                                {
+                                    var objectData = new Dictionary<string, string>();
+
+                                    // Extract fields from the single object and add to the dictionary
+                                    foreach (var field in objectValue.Fields)
+                                    {
+                                        string key = field.Name.ToString();
+                                        string value = ExtractValue(field.Value);
+                                        objectData[key] = value;
+                                    }
+
+                                    // Add the object data to the result list
+                                    result.Add(objectData);
                                 }
                             }
                         }

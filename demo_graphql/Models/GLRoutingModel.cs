@@ -21,6 +21,7 @@ namespace demo_graphql.Models
         public int minLength { get; set; }
         public int maxLength { get; set; }
         public string? description { get; set; }
+        public bool isNotAllow { get; set; }
     }
     public class WorkflowModel
     {

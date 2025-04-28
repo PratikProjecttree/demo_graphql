@@ -172,6 +172,21 @@ namespace demo_graphql.Controllers
                 {
                     var fieldMeta = expectedFields[fieldKey];
 
+                    // 1. If field is marked as isNotAllow (field should not exist at all)
+                    if (fieldMeta.isNotAllow)
+                    {
+                        // Check if the field exists in the request data
+                        if (obj.ContainsKey(fieldKey))
+                        {
+                            responseMessages.Add(new ResponseMessage
+                            {
+                                message = $"Field '{fieldKey}' should not exist because it is marked as not allowed.",
+                                type = "E"
+                            });
+                            continue;
+                        }
+                    }
+
                     // Check required field
                     if (fieldMeta.required && (!obj.TryGetValue(fieldKey, out var value) || string.IsNullOrWhiteSpace(value)))
                     {
@@ -221,6 +236,20 @@ namespace demo_graphql.Controllers
                 {
                     var fieldKey = fieldEntry.Key;
                     var fieldMeta = fieldEntry.Value;
+
+                    // 1.1. If field is marked as 'isNotAllow' (field should not exist)
+                    if (fieldMeta.isNotAllow)
+                    {
+                        if (inputValues.ContainsKey(fieldKey))
+                        {
+                            responseMessages.Add(new ResponseMessage
+                            {
+                                message = $"Field '{fieldKey}' should not exist because it is marked as not allowed.",
+                                type = "E"
+                            });
+                            continue; // Skip further checks for this field
+                        }
+                    }
 
                     if (fieldMeta.required &&
                         (!inputValues.TryGetValue(fieldKey, out var value) ||
