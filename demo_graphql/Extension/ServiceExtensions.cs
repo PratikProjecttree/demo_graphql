@@ -1,3 +1,5 @@
+using demo_graphql.BAL.IServices;
+using demo_graphql.BAL.Services;
 using demo_graphql.Controllers;
 using demo_graphql.Models;
 using FMS.Core.Models;
@@ -16,6 +18,7 @@ public static class ServiceExtensions
         services.AddScoped<IGLService, GLService>();
         services.AddScoped<IHasuraService, HasuraService>();
         services.AddScoped<IWorkFlowService, WorkFlowService>();
+        services.AddScoped<IValidationService, ValidationService>();
     }
 
     public static void ConfigureSwagger(this IServiceCollection services)

@@ -12,4 +12,10 @@ namespace demo_graphql.Controllers
         public const string Query = "Query";
         public const string Mutation = "Mutation";
     }
+
+    public static class AllowedUpdateOperators
+    {
+        public static readonly List<string> AllowedOperators = new List<string> { "_eq", "_in", "_and" };
+    }
+
 }
