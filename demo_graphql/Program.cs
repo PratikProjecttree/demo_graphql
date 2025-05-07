@@ -18,18 +18,15 @@ builder.Services.ConfigureAppSettings(builder.Configuration);
 
 builder.Services.AddHttpClient();
 builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()  // Allows any origin (domain)
-              .AllowAnyMethod()  // Allows any HTTP method (GET, POST, etc.)
-              .AllowAnyHeader(); // Allows any header in the request
-    });
-});
+      {
+          options.AddPolicy("CorsPolicy",
+                    builder => builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+      });
 
 var app = builder.Build();
 
-app.UseCors("AllowAll");
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
@@ -43,5 +40,8 @@ if (app.Environment.IsDevelopment())
 app.UseAuthorization();
 app.MapControllers();
 app.UseHttpsRedirection();
+app.UseRouting();
+app.UseCors("CorsPolicy");
+
 
 app.Run();
