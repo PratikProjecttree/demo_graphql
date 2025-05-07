@@ -17,8 +17,19 @@ builder.Services.ConfigureSwagger();
 builder.Services.ConfigureAppSettings(builder.Configuration);
 
 builder.Services.AddHttpClient();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()  // Allows any origin (domain)
+              .AllowAnyMethod()  // Allows any HTTP method (GET, POST, etc.)
+              .AllowAnyHeader(); // Allows any header in the request
+    });
+});
 
 var app = builder.Build();
+
+app.UseCors("AllowAll");
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
