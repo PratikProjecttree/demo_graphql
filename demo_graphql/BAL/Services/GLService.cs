@@ -12,7 +12,7 @@ namespace demo_graphql.Controllers
         ) : IGLService
     {
 
-        public async Task<Response> Post(GraphQLRequestModel requestModel, IHeaderDictionary additionalHeaders, int LoginPersonId)
+        public async Task<Response> Post(GraphQLRequestModel requestModel)
         {
             Response _response = new();
 
@@ -26,62 +26,6 @@ namespace demo_graphql.Controllers
             // get all query list
             var (operationType, queryList) = GLInspector.GetOperationTypeAndTopLevelFieldNames(requestModel.query);
 
-            // Routing to Hasura
-            var _getProcessRequest = await _dapperService.QueryFirstOrDefaultAsync<string>(PostGresQuery.fn_process_request, new { LoginPersonId, queryList });
-            var routingModels = JsonSerializer.Deserialize<List<GLRoutingModel>>(_getProcessRequest ?? "");
-
-            if (routingModels == null || routingModels?.Count == 0)
-            {
-                _response.data = null;
-                _response.responseMessages.Add(new ResponseMessage() { message = "Request meta not found", type = "E" });
-                return _response;
-            }
-
-            foreach (var routingModel in routingModels ?? new List<GLRoutingModel>())
-            {
-                var validationResult = ProcessRouting(routingModel, operationType, requestModel);
-
-                if (validationResult.responseMessages.Any(m => m.type == "E"))
-                {
-                    _response.data = null;
-                    _response.responseMessages.AddRange(validationResult.responseMessages);
-                    return _response;
-                }
-                // For workflow query operations, process and return immediately
-                if (routingModel.category == Category.Workflow && operationType == QueryType.Query)
-                {
-                    if (routingModel.workflow_meta != null)
-                    {
-                        return await _workFlowService.Request(routingModel.workflow_meta);
-                    }
-                    else
-                    {
-                        _response.data = null;
-                        _response.responseMessages.Add(new ResponseMessage { message = "Workflow meta is not found", type = "E" });
-                        return _response;
-                    }
-                }
-
-                #region commented
-                //if (operationType == QueryType.Query)
-                //{
-                //    if (routingModel.input_validation_meta != null)
-                //    {
-                //        var whereConditions = GLInspector.ExtractFilterFieldsWithValues(requestModel.query);
-
-                //        var validationMessages = ValidateInputAgainstMeta(routingModel, whereConditions);
-
-                //        if (validationMessages.Any(m => m.type == "E"))
-                //        {
-                //            _response.data = null;
-                //            _response.responseMessages.AddRange(validationMessages);
-                //            return _response;
-                //        }
-                //    }
-                //}
-                #endregion
-            }
-
             // Validate update mutation
             if (operationType == QueryType.Mutation && requestModel.query.Contains("update_"))
             {
@@ -94,10 +38,8 @@ namespace demo_graphql.Controllers
                     return _response;
                 }
             }
-
-
             //hasura request
-            _response = await _hasuraService.Post(requestModel, additionalHeaders, LoginPersonId);
+            _response = await _hasuraService.Post(requestModel);
 
             return _response;
         }

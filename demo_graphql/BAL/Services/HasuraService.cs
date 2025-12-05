@@ -17,7 +17,7 @@ namespace demo_graphql.Controllers
             _httpClient = httpClient;
         }
 
-        public async Task<Response> Post(GraphQLRequestModel requestModel, IHeaderDictionary additionalHeaders, int LoginPersonId)
+        public async Task<Response> Post(GraphQLRequestModel requestModel)
         {
             Response _response = new();
 
@@ -28,27 +28,59 @@ namespace demo_graphql.Controllers
             {
                 request.Headers.Add(header.key, header.value);
             }
-            foreach (var header in additionalHeaders.Where(x => x.Key.StartsWith("hasura-", StringComparison.CurrentCultureIgnoreCase)))
+
+            object gqlBody;
+            if (string.IsNullOrWhiteSpace(requestModel.variables))
             {
-                request.Headers.Add(header.Key, header.Value.ToString());
+                gqlBody = new
+                {
+                    query = requestModel.query,
+                    variables = (object?)null,
+                    operationName = requestModel.operationName
+                };
+            }
+            else
+            {
+                // variables string -> JsonElement so it becomes a JSON object
+                var vars = JsonSerializer.Deserialize<JsonElement>(requestModel.variables);
+
+                gqlBody = new
+                {
+                    query = requestModel.query,
+                    variables = (object)vars,
+                    operationName = requestModel.operationName
+                };
             }
 
-            var json = JsonSerializer.Serialize(requestModel);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
 
-            request.Content = content;
+            var json = JsonSerializer.Serialize(gqlBody, options);
+            request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
             var response = await _httpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
             var gLResponse = await response.Content.ReadAsStringAsync();
 
-            //Response convert
+            if (!response.IsSuccessStatusCode)
+            {
+                _response.data = null;
+                _response.responseMessages = new List<ResponseMessage>
+                {
+                    new ResponseMessage { type = "E", message = gLResponse }
+                };
+                return _response;
+            }
+
             var gLResponseModel = JsonSerializer.Deserialize<GLResponseModel>(gLResponse);
 
-            _response.data = gLResponseModel.data;
+            _response.data = gLResponseModel?.data;
             if (!gLResponseModel.succeeded)
-                _response.responseMessages = gLResponseModel.errors?.Select(x => new ResponseMessage() { type = "E", message = x?.message }).ToList();
+                _response.responseMessages = gLResponseModel.errors?
+                    .Select(x => new ResponseMessage { type = "E", message = x?.message }).ToList();
             else
-                _response.responseMessages.Add(new ResponseMessage() { type = "S", message = "Success" });
+                _response.responseMessages.Add(new ResponseMessage { type = "S", message = "Success" });
 
             return _response;
         }

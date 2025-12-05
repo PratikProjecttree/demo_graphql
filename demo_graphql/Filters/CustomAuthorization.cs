@@ -36,33 +36,33 @@ namespace demo_graphql.Filters
             /*this flag for third party application call checking*/
             token = token?.Replace("Bearer ", "");
 
-            if (token != null)
-            {
-                var handler = new JwtSecurityTokenHandler();
-                var tokenInformation = handler.ReadToken(token) as JwtSecurityToken;
-                if (await ValidateToken(token))
-                {
-                    var loginPersonId = tokenInformation?.Claims?.FirstOrDefault(claim => claim?.Type?.ToLower() == "pid")?.Value;
-                    if (!string.IsNullOrEmpty(loginPersonId))
-                    {
-                        filterContext.HttpContext.Request.Headers["X-Login-Person-Id"] = loginPersonId;
-                    }
-                }
-                else
-                {
-                    UnAuthorizeResponse(ref filterContext,
-                     "1",
-                     "Invalid token");
-                    return;
-                }
-            }
-            else
-            {
-                UnAuthorizeResponse(ref filterContext,
-                    "1",
-                    "Invalid token");
-                return;
-            }
+            // if (token != null)
+            // {
+            //     var handler = new JwtSecurityTokenHandler();
+            //     var tokenInformation = handler.ReadToken(token) as JwtSecurityToken;
+            //     if (await ValidateToken(token))
+            //     {
+            //         var loginPersonId = tokenInformation?.Claims?.FirstOrDefault(claim => claim?.Type?.ToLower() == "pid")?.Value;
+            //         if (!string.IsNullOrEmpty(loginPersonId))
+            //         {
+            //             filterContext.HttpContext.Request.Headers["X-Login-Person-Id"] = loginPersonId;
+            //         }
+            //     }
+            //     else
+            //     {
+            //         UnAuthorizeResponse(ref filterContext,
+            //          "1",
+            //          "Invalid token");
+            //         return;
+            //     }
+            // }
+            // else
+            // {
+            //     UnAuthorizeResponse(ref filterContext,
+            //         "1",
+            //         "Invalid token");
+            //     return;
+            // }
 
         }
         public async Task<bool> ValidateToken(string token)
