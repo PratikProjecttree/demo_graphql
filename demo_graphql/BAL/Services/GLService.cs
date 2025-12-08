@@ -26,20 +26,18 @@ namespace demo_graphql.Controllers
             // get all query list
             var (operationType, queryList) = GLInspector.GetOperationTypeAndTopLevelFieldNames(requestModel.query);
 
-            var routingModels = await _dapperService.QueryAsync<GLRoutingModel>(PostGresQuery.Get_request_meta, new { queryList });
-
-            foreach (var routingModel in routingModels ?? new List<GLRoutingModel>())
+            // Validate update mutation
+            if (operationType == QueryType.Mutation && requestModel.query.Contains("update_"))
             {
-                var validationResult = ProcessRouting(routingModel, operationType, requestModel);
+                var validationMessages = _validationService.ValidateUpdateMutation(requestModel.query);
 
-                if (validationResult.responseMessages.Any(m => m.type == "E"))
+                if (validationMessages.Any(m => m.type == "E"))
                 {
                     _response.data = null;
-                    _response.responseMessages.AddRange(validationResult.responseMessages);
+                    _response.responseMessages.AddRange(validationMessages);
                     return _response;
                 }
             }
-
             //hasura request
             _response = await _hasuraService.Post(requestModel);
 
@@ -86,7 +84,27 @@ namespace demo_graphql.Controllers
                 case (Category.Default, QueryType.Query):
                 case (Category.Custom, QueryType.Query):
 
+                    #region commented
+                    //As of now we not validating any thig if its queryType is Query.
+                    //if (routingModel.input_validation_meta != null)
+                    //{
+                    //    var whereConditions = GLInspector.ExtractFilterFieldsWithValues(requestModel.query);
+                    //    var validationMessages = _validationService.ValidateInputAgainstMeta(routingModel, whereConditions);
+
+                    //    if (validationMessages.Any(m => m.type == "E"))
+                    //    {
+                    //        return new Response
+                    //        {
+                    //            data = null,
+                    //            responseMessages = validationMessages
+                    //        };
+                    //    }
+                    //}
+                    #endregion
                     return new Response();
+
+                // Case for Workflow + Query is handled separately in the main method
+
                 default:
                     return new Response();
             }

@@ -88,7 +88,7 @@ namespace demo_graphql.Controllers
                                     var objectData = new Dictionary<string, string>();
 
                                     // Extract fields from the single object and add to the dictionary
-                                    foreach (var field in objectValue?.Fields)
+                                    foreach (var field in objectValue.Fields)
                                     {
                                         string key = field.Name.ToString();
                                         string value = ExtractValue(field.Value);
