@@ -20,7 +20,7 @@ public static class ServiceExtensions
         services.AddScoped<IHasuraService, HasuraService>();
         services.AddScoped<IWorkFlowService, WorkFlowService>();
         services.AddScoped<IValidationService, ValidationService>();
-        services.AddScoped<IEmployeeService, EmployeeService>();
+        services.AddScoped<IDepartmentService, DepartmentService>();
     }
 
     public static void ConfigureSwagger(this IServiceCollection services)
