@@ -6,17 +6,17 @@ namespace demo_graphql.Controllers
     [Route("api/[controller]")]
     public class DashboardController : ControllerBase
     {
-        private readonly IEmployeeService _employeeService;
+        private readonly IDashboardService _dashboardService;
 
-        public DashboardController(IEmployeeService employeeService)
+        public DashboardController(IDashboardService dashboardService)
         {
-            _employeeService = employeeService;
+            _dashboardService = dashboardService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Dashboard()
         {
-            var result = await _employeeService.GetDashboardSummary();
+            var result = await _dashboardService.GetDashboardSummary();
             return Ok(result);
         }
     }
