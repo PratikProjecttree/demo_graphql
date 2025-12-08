@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace demo_graphql.Models
 {
     public class GLRoutingModel
@@ -5,12 +7,17 @@ namespace demo_graphql.Models
         public string? type { get; set; }
         public string? category { get; set; }
         public string? object_name { get; set; }
-        public string? insert_mds_departments { get; set; }
+        public string? inputValidation { get; set; }
         public string? custom_meta { get; set; }
-        public Dictionary<string, Field>? input_validation_meta { get; set; }
+        // public Dictionary<string, Field>? input_validation_meta { get; set; }
         public WorkflowModel? workflow_meta { get; set; }
         // Nested dictionary: entity -> field name -> field definition
         public Dictionary<string, string>? headers { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore]
+        public Dictionary<string, Field>? input_validation_meta => string.IsNullOrWhiteSpace(inputValidation)
+        ? null
+        : JsonSerializer.Deserialize<Dictionary<string, Field>>(inputValidation, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
     }
 
     public class Field
