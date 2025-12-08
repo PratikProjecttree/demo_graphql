@@ -5,7 +5,22 @@ namespace demo_graphql.Controllers
 
         public static class PostGresQuery
         {
-            public const string Get_department = @"select id,name from department";
+                public const string Get_request_meta = @"SELECT
+                                                         id,
+                                                         object_name,
+                                                         type,
+                                                         category,
+                                                         workflow_meta,
+                                                         custom_meta,
+                                                         input_validation_meta AS inputValidation,
+                                                         headers,
+                                                         permission_meta,
+                                                         request_headers
+                                                     FROM
+                                                         public.request_meta
+                                                     WHERE
+                                                         object_name = ANY(@queryList)
+                                                     ORDER BY id;";
             public const string Get_dashboard_summary = @"WITH 
                                                 employee_count AS (
                                                     SELECT COUNT(*) AS total_employees FROM employee
