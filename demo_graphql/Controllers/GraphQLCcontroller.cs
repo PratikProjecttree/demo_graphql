@@ -5,7 +5,7 @@ namespace demo_graphql.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class GraphQLController : ControllerBase
+    public class GraphQLController : BaseController
     {
         private readonly IGLService _graphQLService;
         public GraphQLController(IGLService graphQLService)
@@ -16,7 +16,7 @@ namespace demo_graphql.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(GraphQLRequestModel requestModel)
         {
-            var response = await _graphQLService.Post(requestModel);
+            var response = await _graphQLService.Post(requestModel, Request.Headers, LoginPersonId);
             return Ok(response);
         }
     }

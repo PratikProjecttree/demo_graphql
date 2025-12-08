@@ -2,7 +2,6 @@ using demo_graphql.BAL.IServices;
 using demo_graphql.BAL.Services;
 using demo_graphql.Controllers;
 using demo_graphql.Models;
-using demo_graphql.Services;
 using FMS.Core.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -20,7 +19,6 @@ public static class ServiceExtensions
         services.AddScoped<IHasuraService, HasuraService>();
         services.AddScoped<IWorkFlowService, WorkFlowService>();
         services.AddScoped<IValidationService, ValidationService>();
-        services.AddScoped<IDepartmentService, DepartmentService>();
     }
 
     public static void ConfigureSwagger(this IServiceCollection services)

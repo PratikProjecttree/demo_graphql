@@ -6,7 +6,6 @@ namespace demo_graphql.Controllers
         public static class PostGresQuery
         {
             public const string fn_process_request = @"select * from mds.fn_process_request(@LoginPersonId, @queryList);";
-            public const string Get_department = @"select id,name from department";
         }
     }
 }
