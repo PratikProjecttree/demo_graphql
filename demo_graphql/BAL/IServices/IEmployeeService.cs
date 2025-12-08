@@ -2,7 +2,7 @@ using demo_graphql.Models;
 
 namespace demo_graphql.Controllers
 {
-  public interface IDashboardService
+  public interface IEmployeeService
   {
     Task<Response> GetDashboardSummary();
 

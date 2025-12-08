@@ -5,11 +5,11 @@ using static demo_graphql.Controllers.QueryInspector;
 
 namespace demo_graphql.Services
 {
-    public class DashboardService : Controllers.IDashboardService
+    public class EmployeeService : Controllers.IEmployeeService
     {
         private readonly string _connectionString;
 
-        public DashboardService(IConfiguration configuration)
+        public EmployeeService(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("Connection string missing.");
