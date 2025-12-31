@@ -1,8 +1,9 @@
 using System.Data;
 using Dapper;
+using demo_graphql.BAL.IServices;
 using Npgsql;
 
-namespace demo_graphql.Controllers
+namespace demo_graphql.Services
 {
     public class DapperService : IDapperService
     {

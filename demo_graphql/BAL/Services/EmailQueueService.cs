@@ -1,15 +1,15 @@
 using System.Data;
 using Dapper;
-using demo_graphql.Controllers;
 using demo_graphql.Models;
 using Npgsql;
-using static demo_graphql.Controllers.QueryInspector;
+using static demo_graphql.BAL.QueryInspector;
 using demo_graphql.Models.EmailModels;
 using Newtonsoft.Json;
 using RestSharp;
 using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
+using demo_graphql.BAL.IServices;
 
 namespace demo_graphql.Services
 {

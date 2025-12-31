@@ -2,9 +2,9 @@ using System.Net;
 using demo_graphql.BAL.IServices;
 using demo_graphql.Models;
 using demo_graphql.Models.EmailModels;
-using static demo_graphql.Controllers.QueryInspector;
+using static demo_graphql.BAL.QueryInspector;
 
-namespace demo_graphql.Controllers
+namespace demo_graphql.BAL.Services
 {
     public class GLService(IDapperService _dapperService,
         IHasuraService _hasuraService,

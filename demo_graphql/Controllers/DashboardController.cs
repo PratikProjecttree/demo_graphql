@@ -1,4 +1,6 @@
+using demo_graphql.BAL.IServices;
 using demo_graphql.Filters;
+using demo_graphql.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace demo_graphql.Controllers

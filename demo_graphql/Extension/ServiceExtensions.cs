@@ -16,6 +16,7 @@ public static class ServiceExtensions
         services.Configure<SsoApiModel>(configuration.GetSection("SsoConfiguration"));
         services.Configure<ASMModel>(configuration.GetSection("ASMService"));
         services.Configure<CampaignApiModel>(configuration.GetSection("CampaignService"));
+        services.Configure<MisModel>(configuration.GetSection("MisService"));
     }
     public static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)
     {

@@ -1,4 +1,4 @@
-namespace demo_graphql.Controllers
+namespace demo_graphql.BAL
 {
     public class QueryInspector
     {

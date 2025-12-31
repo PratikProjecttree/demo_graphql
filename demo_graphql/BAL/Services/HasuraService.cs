@@ -1,10 +1,11 @@
 
 using System.Text;
 using System.Text.Json;
+using demo_graphql.BAL.IServices;
 using demo_graphql.Models;
 using Microsoft.Extensions.Options;
 
-namespace demo_graphql.Controllers
+namespace demo_graphql.Services
 {
     public class HasuraService : IHasuraService
     {

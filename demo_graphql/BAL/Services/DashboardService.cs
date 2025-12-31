@@ -1,11 +1,12 @@
 using Dapper;
+using demo_graphql.BAL.IServices;
 using demo_graphql.Models;
 using Npgsql;
-using static demo_graphql.Controllers.QueryInspector;
+using static demo_graphql.BAL.QueryInspector;
 
-namespace demo_graphql.BAL.Services
+namespace demo_graphql.Services
 {
-    public class DashboardService : Controllers.IDashboardService
+    public class DashboardService : IDashboardService
     {
         private readonly string _connectionString;
         private readonly ILogger<DashboardService> _logger;

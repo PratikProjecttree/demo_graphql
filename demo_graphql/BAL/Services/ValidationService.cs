@@ -1,11 +1,11 @@
 ﻿using demo_graphql.BAL.IServices;
-using demo_graphql.Controllers;
 using demo_graphql.Models;
 using GraphQLParser.AST;
 using GraphQLParser;
 using System.Net;
+using demo_graphql.BAL;
 
-namespace demo_graphql.BAL.Services
+namespace demo_graphql.Services
 {
     public class ValidationService : IValidationService
     {

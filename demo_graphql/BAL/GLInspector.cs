@@ -3,7 +3,7 @@ using GraphQLParser;
 using GraphQLParser.AST;
 using GraphQLParser.Exceptions;
 
-namespace demo_graphql.Controllers
+namespace demo_graphql.BAL
 {
     public class GLInspector
     {

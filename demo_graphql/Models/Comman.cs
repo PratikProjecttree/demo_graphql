@@ -1,5 +1,5 @@
 
-namespace demo_graphql.Controllers
+namespace demo_graphql.Models
 {
     public static class Category
     {

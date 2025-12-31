@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using demo_graphql.Models;
+using demo_graphql.BAL.IServices;
 
 namespace demo_graphql.Controllers
 {

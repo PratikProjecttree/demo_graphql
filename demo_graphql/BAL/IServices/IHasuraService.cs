@@ -1,6 +1,6 @@
 using demo_graphql.Models;
 
-namespace demo_graphql.Controllers
+namespace demo_graphql.BAL.IServices
 {
   public interface IHasuraService
   {

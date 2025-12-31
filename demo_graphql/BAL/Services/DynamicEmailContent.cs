@@ -1,4 +1,5 @@
 using demo_graphql.Controllers;
+using demo_graphql.Models;
 using demo_graphql.Models.EmailModels;
 using Newtonsoft.Json;
 

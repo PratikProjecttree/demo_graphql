@@ -4,20 +4,23 @@ using demo_graphql.Models;
 using demo_graphql.BAL.IServices;
 using RestSharp;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Options;
 
 
-namespace demo_graphql.BAL.Services
+namespace demo_graphql.Services
 {
     public class MISService : IMISService
     {
         private readonly IRestClient _client;
         private readonly IRestRequest _request;
         private readonly ILogger<MISService> _logger;
-        public MISService(IRestClient client, IRestRequest request, ILogger<MISService> logger)
+        private readonly IOptions<MisModel> _misModel;
+        public MISService(IRestClient client, IRestRequest request, ILogger<MISService> logger, IOptions<MisModel> misModel)
         {
             _request = request;
             _client = client;
             _logger = logger;
+            _misModel = misModel ?? throw new ArgumentNullException(nameof(misModel));
         }
 
         public async Task<IEnumerable<PositionViewModel>> GetPersonPosition(int[] personId = null)
@@ -27,7 +30,7 @@ namespace demo_graphql.BAL.Services
             {
                 var queryParams = "?";
                 queryParams += SetQueryParams(personId, nameof(personId));
-                var requestUrl = "https://api.uat.bapsapps.org/myseva/api/v1/" + "Person/Position" + queryParams;
+                var requestUrl = _misModel.Value.Url + "Person/Position" + queryParams;
                 var response = await Execute<ListResponse<PositionViewModel>>(requestUrl);
                 return response.Data;
             }
@@ -51,8 +54,8 @@ namespace demo_graphql.BAL.Services
                 _request.Resource = url;
                 _request.Method = method;
                 _request.AddHeader("Content-type", "application/json");
-                _request.AddHeader("x-baps-auth-app-id", "F211DAC5-0DC0-4C05-B467-A407015A2BDC");
-                _request.AddHeader("x-baps-auth-app-secret", "5A7BB379-B566-400F-BE77-021576B06D2F");
+                _request.AddHeader("x-baps-auth-app-id", _misModel.Value.AppId);
+                _request.AddHeader("x-baps-auth-app-secret", _misModel.Value.AppSecret);
 
                 if (Method.POST == method)
                 {
