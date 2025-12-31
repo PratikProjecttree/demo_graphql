@@ -35,33 +35,33 @@ public static class ServiceExtensions
     private static void ConfigureSwaggerGen(SwaggerGenOptions options)
     {
         // Add JWT Bearer security definition
-        options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
         {
             Name = "Authorization",
-            Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+            Type = SecuritySchemeType.ApiKey,
             Scheme = "Bearer",
             BearerFormat = "JWT",
-            In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+            In = ParameterLocation.Header,
             Description = "Enter your token"
         });
         // 2) NEW: X-App-Position header
-        options.AddSecurityDefinition("Position", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+        options.AddSecurityDefinition("Position", new OpenApiSecurityScheme
         {
             Name = "X-App-Position",
-            Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
-            In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+            Type = SecuritySchemeType.ApiKey,
+            In = ParameterLocation.Header,
             Description = "Position Id header"
         });
 
         // Apply security to all operations
-        options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+        options.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
         {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            new OpenApiSecurityScheme
             {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                Reference = new OpenApiReference
                 {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
                 }
             },

@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 namespace demo_graphql.Models.EmailModels
 {
@@ -99,88 +98,7 @@ namespace demo_graphql.Models.EmailModels
         public string? EventName { get; set; }
         public string? Name { get; set; }
     }
-    public class EmailQueueMemberResponse
-    {
-        public DateTime? EventStartDate { get; set; }
-        public DateTime? EventEndDate { get; set; }
-        public string? EventLocation { get; set; }
-        public string? EventAddress { get; set; }
-        public DateTime? CloseParticipantRegistrationDate { get; set; }
-        public DateTime? OpenParticipantRegistrationDate { get; set; }
-        public DateTime? DueTransportationDate { get; set; }
-        public DateTime? DueAccomodationDate { get; set; }
-        public decimal? OutStandingAmount { get; set; }
-        public string? CurrencyType { get; set; }
-        public string? TargetApplication { get; set; }
-        public int MemberId { get; set; }
-        public int? MisId { get; set; }
-        public string? Email { get; set; }
-        public int EventId { get; set; }
-        public string? EventName { get; set; }
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public DateTime? RegistrationDate { get; set; }
-        public decimal PaidAmount { get; set; }
-        public string? MemberZone { get; set; }
-        public string? MemberCenter { get; set; }
-        public string? BAPSID { get; set; }
-        public bool allowQrcode { get; set; }
-        public string? SessionName { get; set; }
-        private string? _familyDetail { get; set; }
-        public DateTime? TripStartDate { get; set; }
-        public DateTime? TripEndDate { get; set; }
-        // public List<FamilyShortInfoModel>? FamilyReponse
-        // {
-        //     get => _familyDetail != null ? JsonConvert.DeserializeObject<List<FamilyShortInfoModel>>(_familyDetail) : new List<FamilyShortInfoModel>();
-        //     set { _familyDetail = value != null ? JsonConvert.SerializeObject(value) : null; }
-        // }
-        private string? _groupPerson { get; set; }
-        // public List<GroupPersonResponse>? GroupPerson
-        // {
-        //     get => _groupPerson != null ? JsonConvert.DeserializeObject<List<GroupPersonResponse>>(_groupPerson) : new List<GroupPersonResponse>();
-        //     set { _groupPerson = value != null ? JsonConvert.SerializeObject(value) : null; }
-        // }
-        private string? _QuestionAnswer { get; set; }
-        // public List<EmailQuestionResponse>? QuestionAnswer
-        // {
-        //     get => _QuestionAnswer != null ? JsonConvert.DeserializeObject<List<EmailQuestionResponse>>(_QuestionAnswer) : new List<EmailQuestionResponse>();
-        //     set { _QuestionAnswer = value != null ? JsonConvert.SerializeObject(value) : null; }
-        // }
-        public string? DietaryRestrictions { get; set; }
-        public string? OtherRestrictions { get; set; }
-        public string? TransportationReqd { get; set; }
-        public DateTime? ArrivalDate { get; set; }
-        public TimeSpan? ArrivalTime { get; set; }
-        public string? ArrivalAirport { get; set; }
-        public string? ArrivalAirline { get; set; }
-        public string? ArrivalFlightNumber { get; set; }
-        public DateTime? DepartureDate { get; set; }
-        public TimeSpan? DepartureTime { get; set; }
-        public string? DepartureAirport { get; set; }
-        public string? DepartureAirline { get; set; }
-        public string? DepartureFlightNumber { get; set; }
-        public string? AccommodationType { get; set; }
-        public bool IsRsvpEvent { get; set; }
-        public int? EventTypeId { get; set; }
-        public string? DriverName { get; set; }
-        public string? VehicleNumber { get; set; }
-        public string? VehicleMakeName { get; set; }
-        public string? VehicleModelName { get; set; }
-        public string? VehicleColor { get; set; }
-        public string? RequestType { get; set; }
-        public string? _TripDetails { get; set; }
-        public int? TripNumber { get; set; }
-        public int? TripId { get; set; }
-        // public List<ParticipantFlightInfo>? TripDetails
-        // {
-        //     get => _TripDetails != null ? JsonConvert.DeserializeObject<List<ParticipantFlightInfo>>(_TripDetails) : new List<ParticipantFlightInfo>();
-        //     set { _TripDetails = value != null ? JsonConvert.SerializeObject(value) : null; }
-        // }
-        public int? RsvpMemberId { get; set; }
-        public string? Pin { get; set; }
-        public string? PreviewUrl { get; set; }
-        public string? MemberGroupName { get; set; }
-    }
+    
     public class CampaignTemplate
     {
         public string templateId { get; set; }

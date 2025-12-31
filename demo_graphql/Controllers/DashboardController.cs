@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace demo_graphql.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/dashboard")]
     public class DashboardController : ControllerBase
     {
         private readonly IDashboardService _dashboardService;

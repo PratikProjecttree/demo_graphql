@@ -268,78 +268,7 @@ namespace demo_graphql.Services
             var plainTextBytes = Convert.ToBase64String(Encoding.UTF8.GetBytes(rsvpMemberEventText));
             return plainTextBytes;
         }
-        public static string SetTemplateContent(EmailQueueSchedularResponse? model, EmailQueueMemberResponse member)
-        {
-            var content = model?.Body;
-            var data = model?.DynamicVariables != null ? JsonConvert.DeserializeObject<List<DynamicVariables>>(model.DynamicVariables) : new List<DynamicVariables>();
-            if (data.Count > 0)
-            {
-                foreach (var item in data)
-                {
-                    string? val = null;
-                    switch (item.Variable)
-                    {
-                        case CommanDynamicParaNameForEmail.eventName:
-                            val = member?.EventName ?? "";
-                            break;
-                        case CommanDynamicParaNameForEmail.ParticipantName:
-                            val = member?.FirstName + " " + member?.LastName ?? "";
-                            break;
-                        case CommanDynamicParaNameForEmail.eventStartDate:
-                            val = member?.EventStartDate == null ? "" : item.Format != null ? Convert.ToDateTime(member?.EventStartDate).ToString(item.Format) : member?.EventStartDate.ToString();
-                            break;
-                        case CommanDynamicParaNameForEmail.eventStartDateF1:
-                            val = member?.EventStartDate == null ? "" : item.Format != null ? Convert.ToDateTime(member?.EventStartDate).ToString(item.Format) : member?.EventStartDate.ToString();
-                            break;
-                        case CommanDynamicParaNameForEmail.eventEndDate:
-                            val = member?.EventEndDate == null ? "" : item.Format != null ? Convert.ToDateTime(member?.EventEndDate).ToString(item.Format) : member?.EventEndDate.ToString();
-                            break;
-                        case CommanDynamicParaNameForEmail.eventEndDateF1:
-                            val = member?.EventEndDate == null ? "" : item.Format != null ? Convert.ToDateTime(member?.EventEndDate).ToString(item.Format) : member?.EventEndDate.ToString();
-                            break;
-                        case CommanDynamicParaNameForEmail.registrationDate:
-                            val = member?.RegistrationDate == null ? "" : item.Format != null ? Convert.ToDateTime(member?.RegistrationDate).ToString(item.Format) : member?.RegistrationDate.ToString();
-                            break;
-                        case CommanDynamicParaNameForEmail.registrationDateF1:
-                            val = member?.RegistrationDate == null ? "" : item.Format != null ? Convert.ToDateTime(member?.RegistrationDate).ToString(item.Format) : member?.RegistrationDate.ToString();
-                            break;
-                        case CommanDynamicParaNameForEmail.paidAmount:
-                            val = (member?.PaidAmount.ToString() ?? "0.00") + member?.CurrencyType ?? "USD";
-                            break;
-                        case CommanDynamicParaNameForEmail.registrationCloseDate:
-                            val = member?.CloseParticipantRegistrationDate == null ? "" : item.Format != null ? Convert.ToDateTime(member?.CloseParticipantRegistrationDate).ToString(item.Format) : member?.CloseParticipantRegistrationDate.ToString();
-                            break;
-                        case CommanDynamicParaNameForEmail.registrationCloseDateF1:
-                            val = member?.CloseParticipantRegistrationDate == null ? "" : item.Format != null ? Convert.ToDateTime(member?.CloseParticipantRegistrationDate).ToString(item.Format) : member?.CloseParticipantRegistrationDate.ToString();
-                            break;
-                        case CommanDynamicParaNameForEmail.transportationCloseDate:
-                            val = member?.DueTransportationDate == null ? "" : item.Format != null ? Convert.ToDateTime(member?.DueTransportationDate).ToString(item.Format) : member?.DueTransportationDate.ToString();
-                            break;
-                        case CommanDynamicParaNameForEmail.transportationCloseDateF1:
-                            val = member?.DueTransportationDate == null ? "" : item.Format != null ? Convert.ToDateTime(member?.DueTransportationDate).ToString(item.Format) : member?.DueTransportationDate.ToString();
-                            break;
-                        case CommanDynamicParaNameForEmail.eventAddress:
-                            val = member?.EventAddress ?? "";
-                            break;
-                        case CommanDynamicParaNameForEmail.eventLocation:
-                            val = member?.EventLocation ?? "";
-                            break;
-                        case CommanDynamicParaNameForEmail.accomodationCloseDate:
-                            val = member?.DueAccomodationDate == null ? "" : item.Format != null ? Convert.ToDateTime(member?.DueAccomodationDate).ToString(item.Format) : member?.DueAccomodationDate.ToString();
-                            break;
-                        case CommanDynamicParaNameForEmail.accomodationCloseDateF1:
-                            val = member?.DueAccomodationDate == null ? "" : item.Format != null ? Convert.ToDateTime(member?.DueAccomodationDate).ToString(item.Format) : member?.DueAccomodationDate.ToString();
-                            break;
-                        case CommanDynamicParaNameForEmail.outStandingAmount:
-                            val = (member?.OutStandingAmount?.ToString() ?? "0.00") + member?.CurrencyType ?? "USD";
-                            break;
-
-                    }
-                    content = content?.Replace("${" + item.Variable + "}", val);
-                }
-            }
-            return content;
-        }
+        
         // public static byte[] qrCodeEncodeWithBytes(string? bapsId, string? firstName, string? lastName, int? personId, string? email = null, int? memberId = null, int? eventId = null, string? guid = null)
         // {
         //     string qrCodeText;

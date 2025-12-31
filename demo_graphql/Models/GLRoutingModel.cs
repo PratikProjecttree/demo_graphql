@@ -11,9 +11,7 @@ namespace demo_graphql.Models
         public string? object_name { get; set; }
         public string? inputValidation { get; set; }
         public string? custom_meta { get; set; }
-        // public Dictionary<string, Field>? input_validation_meta { get; set; }
         public string? workflow_meta_raw { get; set; }
-        // Nested dictionary: entity -> field name -> field definition
         public string? system_module_access_codes { get; set; }
         public Dictionary<string, string>? headers { get; set; }
         [System.Text.Json.Serialization.JsonIgnore]

@@ -4,7 +4,7 @@ using demo_graphql.Models;
 namespace demo_graphql.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/graphql")]
     public class GraphQLController : CommonController
     {
         private readonly IGLService _graphQLService;
@@ -14,8 +14,8 @@ namespace demo_graphql.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(GraphQLRequestModel requestModel)
-             {
+        public async Task<IActionResult> Post([FromBody] GraphQLRequestModel requestModel)
+        {
             var response = await _graphQLService.Post(requestModel, GetPositionId(), GetUserId());
             return Ok(response);
         }

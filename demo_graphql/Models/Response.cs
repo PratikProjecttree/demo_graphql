@@ -44,9 +44,6 @@ namespace demo_graphql.Models
         private readonly List<Errors> _error = new();
         public List<Errors> Errors { get { return _error; } set { } }
         public IEnumerable<TModel> Data { get; set; }
-        //public int ItemsCount {
-        //    get => (Data != null) ? ((Data.Count() > 0) ? Data.Count() : 0) : 0;
-        //}
         public string _message;
         public string Message
         {
