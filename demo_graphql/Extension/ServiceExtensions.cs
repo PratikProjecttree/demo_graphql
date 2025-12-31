@@ -4,6 +4,7 @@ using demo_graphql.Controllers;
 using demo_graphql.Models;
 using demo_graphql.Services;
 using FMS.Core.Models;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 public static class ServiceExtensions
@@ -21,6 +22,10 @@ public static class ServiceExtensions
         services.AddScoped<IWorkFlowService, WorkFlowService>();
         services.AddScoped<IValidationService, ValidationService>();
         services.AddScoped<IDashboardService, DashboardService>();
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddScoped<IASMService, ASMService>();
+        services.AddScoped<IMISService, MISService>();
+        services.AddScoped<IEmailQueueService, EmailQueueService>();
     }
 
     public static void ConfigureSwagger(this IServiceCollection services)
@@ -39,6 +44,14 @@ public static class ServiceExtensions
             In = Microsoft.OpenApi.Models.ParameterLocation.Header,
             Description = "Enter your token"
         });
+        // 2) NEW: X-App-Position header
+        options.AddSecurityDefinition("Position", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+        {
+            Name = "X-App-Position",
+            Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+            In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+            Description = "Position Id header"
+        });
 
         // Apply security to all operations
         options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
@@ -50,6 +63,17 @@ public static class ServiceExtensions
                 {
                     Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
                     Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        },
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Position"
                 }
             },
             Array.Empty<string>()

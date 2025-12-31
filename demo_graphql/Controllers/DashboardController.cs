@@ -1,3 +1,4 @@
+using demo_graphql.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace demo_graphql.Controllers
@@ -12,7 +13,7 @@ namespace demo_graphql.Controllers
         {
             _dashboardService = dashboardService;
         }
-
+        [AccessPermissionAuthorization(new string[] { SystemModuleCode.MasterEvent }, new string[] { ModuleAction.Add })]
         [HttpGet]
         public async Task<IActionResult> Dashboard()
         {

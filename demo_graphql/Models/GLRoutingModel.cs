@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using demo_graphql.Models.EmailModels;
 
 namespace demo_graphql.Models
 {
@@ -10,13 +12,32 @@ namespace demo_graphql.Models
         public string? inputValidation { get; set; }
         public string? custom_meta { get; set; }
         // public Dictionary<string, Field>? input_validation_meta { get; set; }
-        public WorkflowModel? workflow_meta { get; set; }
+        public string? workflow_meta_raw { get; set; }
         // Nested dictionary: entity -> field name -> field definition
+        public string? system_module_access_codes { get; set; }
         public Dictionary<string, string>? headers { get; set; }
         [System.Text.Json.Serialization.JsonIgnore]
         public Dictionary<string, Field>? input_validation_meta => string.IsNullOrWhiteSpace(inputValidation)
         ? null
         : JsonSerializer.Deserialize<Dictionary<string, Field>>(inputValidation, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        [JsonIgnore]
+        public WorkflowModel? workflow_meta =>
+        string.IsNullOrWhiteSpace(workflow_meta_raw)
+            ? null
+            : JsonSerializer.Deserialize<WorkflowModel>(
+                workflow_meta_raw,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        public string? email_configuration_raw { get; set; }
+        [JsonIgnore]
+        public EmailQueueRequest? email_configuration =>
+        string.IsNullOrWhiteSpace(email_configuration_raw)
+            ? null
+            : JsonSerializer.Deserialize<EmailQueueRequest>(
+                email_configuration_raw,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
 
     }
 

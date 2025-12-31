@@ -4,6 +4,6 @@ namespace demo_graphql.Controllers
 {
   public interface IGLService
   {
-    Task<Response> Post(GraphQLRequestModel requestModel);
+    Task<Response> Post(GraphQLRequestModel requestModel, int positionId, int userId);
   }
 }

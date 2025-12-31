@@ -15,19 +15,20 @@ namespace demo_graphql.Controllers
             _httpClient = httpClient;
         }
 
-        public async Task<Response> Request(WorkflowModel requestModel)
+        public async Task<Response> Request(WorkflowModel requestModel, Dictionary<string, object> payload)
         {
             Response _response = new();
+            requestModel.payload = payload;
 
             // Request hasura
-            var request = new HttpRequestMessage(HttpMethod.Get, requestModel.uri);
+            var request = new HttpRequestMessage(HttpMethod.Post, requestModel.uri);
 
             foreach (var header in requestModel.header)
             {
                 request.Headers.Add(header.Key, header.Value);
             }
 
-            var json = JsonSerializer.Serialize(requestModel);
+            var json = JsonSerializer.Serialize(requestModel.payload);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             request.Content = content;
@@ -36,11 +37,11 @@ namespace demo_graphql.Controllers
             var gLResponse = await response.Content.ReadAsStringAsync();
 
             //Response convert
-            var gLResponseModel = JsonSerializer.Deserialize<GLResponseModel>(gLResponse);
+            var wfResponseModel = JsonSerializer.Deserialize<WFResponse>(gLResponse);
 
-            _response.data = gLResponseModel.data;
-            if (!gLResponseModel.succeeded)
-                _response.responseMessages = gLResponseModel.errors?.Select(x => new ResponseMessage() { type = "E", message = x?.message }).ToList();
+            // _response.data = gLResponseModel.data;
+            if (!wfResponseModel.succeeded)
+                _response.responseMessages = new List<ResponseMessage> { new ResponseMessage() { type = "E", message = wfResponseModel.message ?? "Workflow request failed" } };
             else
                 _response.responseMessages.Add(new ResponseMessage() { type = "S", message = "Success" });
 

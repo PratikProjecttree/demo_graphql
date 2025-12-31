@@ -1,7 +1,6 @@
-using demo_graphql.Controllers;
 using demo_graphql.Extension;
 using demo_graphql.Filters;
-using FMS.Core.Models;
+using RestSharp;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +14,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.ConfigureServices(builder.Configuration);
 builder.Services.ConfigureSwagger();
 builder.Services.ConfigureAppSettings(builder.Configuration);
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddTransient<IRestClient>(_ => new RestClient()); //configuration["OrderServiceEndpoint"])); 
+builder.Services.AddTransient<IRestRequest>(_ => new RestRequest());
 
 builder.Services.AddHttpClient();
 builder.Services.AddCors(options =>

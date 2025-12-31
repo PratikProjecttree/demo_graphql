@@ -4,6 +4,6 @@ namespace demo_graphql.Controllers
 {
   public interface IWorkFlowService
   {
-    Task<Response> Request(WorkflowModel requestModel);
+    Task<Response> Request(WorkflowModel requestModel, Dictionary<string, object> payload);
   }
 }

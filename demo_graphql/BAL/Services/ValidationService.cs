@@ -3,6 +3,7 @@ using demo_graphql.Controllers;
 using demo_graphql.Models;
 using GraphQLParser.AST;
 using GraphQLParser;
+using System.Net;
 
 namespace demo_graphql.BAL.Services
 {
@@ -15,7 +16,8 @@ namespace demo_graphql.BAL.Services
             if (routingModel.input_validation_meta != null)
             {
                 var objectDataList = GLInspector.ExtractObjectsArguments(requestModel.query);
-                var validationMessages = InputValidationMetaValidateFields(objectDataList, routingModel);
+                List<Dictionary<string, string>> payloadList = objectDataList.Where(x => x.Role == ArgRole.Payload).Select(x => x.Fields).ToList();
+                var validationMessages = InputValidationMetaValidateFields(payloadList, routingModel);
 
                 if (validationMessages.Any(m => m.type == "E"))
                 {
@@ -145,18 +147,20 @@ namespace demo_graphql.BAL.Services
                         responseMessages.Add(new ResponseMessage
                         {
                             message = $"Field '{fieldKey}' should not exist because it is marked as not allowed.",
-                            type = "E"
+                            type = "E",
+                            statusCode = (int)HttpStatusCode.BadRequest
                         });
                         continue;
                     }
 
                     // Check required field
-                    if (fieldMeta.required && (!obj.TryGetValue(fieldKey, out var value) || string.IsNullOrWhiteSpace(value)))
+                    if (fieldMeta.required && (!obj.TryGetValue(fieldKey, out var value) || string.IsNullOrWhiteSpace(value)) && (!routingModel.object_name.Contains("update_")))
                     {
                         responseMessages.Add(new ResponseMessage
                         {
                             message = $"Field '{fieldKey}' is required.",
-                            type = "E"
+                            type = "E",
+                            statusCode = (int)HttpStatusCode.BadRequest
                         });
                         continue;
                     }
@@ -169,7 +173,8 @@ namespace demo_graphql.BAL.Services
                             responseMessages.Add(new ResponseMessage
                             {
                                 message = $"Field '{fieldKey}' should be at least {fieldMeta.minLength} characters long.",
-                                type = "E"
+                                type = "E",
+                                statusCode = (int)HttpStatusCode.BadRequest
                             });
                         }
 
@@ -179,7 +184,8 @@ namespace demo_graphql.BAL.Services
                             responseMessages.Add(new ResponseMessage
                             {
                                 message = $"Field '{fieldKey}' should be at most {fieldMeta.maxLength} characters long.",
-                                type = "E"
+                                type = "E",
+                                statusCode = (int)HttpStatusCode.BadRequest
                             });
                         }
                     }

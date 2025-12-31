@@ -19,4 +19,9 @@ namespace demo_graphql.Models
         public string? path { get; set; }
         public string? code { get; set; }
     }
+    public class WFResponse
+    {
+        public bool succeeded { get; set; }
+        public string? message { get; set; }
+    }
 }
