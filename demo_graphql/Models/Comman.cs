@@ -47,5 +47,11 @@ namespace demo_graphql.Controllers
         public const string ParticipantName = "ParticipantName";
     }
     public enum ArgRole { Unknown, Payload, Parameter }
+    public static class CommonURLEndpoint
+    {
+        public const string GSSSurvey = "surveys/departments";
+        public const string CampaignTemplates = "templates";
+        public const string CampaignsSend = "campaigns/send";
+    }
 
 }

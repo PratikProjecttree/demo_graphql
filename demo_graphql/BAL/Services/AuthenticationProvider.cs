@@ -12,8 +12,8 @@ public class AuthenticationService : IAuthenticationService
     private readonly IASMService _asmProvider;
     public AuthenticationService(IASMService asmProvider, IMISService mISProvider)
     {
-        _asmProvider = asmProvider;
-        _MISProvider = mISProvider;
+        _asmProvider = asmProvider ?? throw new ArgumentNullException(nameof(asmProvider));
+        _MISProvider = mISProvider ?? throw new ArgumentNullException(nameof(mISProvider));
     }
 
     public async Task<List<UserModuleAccessResponse>> PermissionByPosition(int positionId, int loginUserId)

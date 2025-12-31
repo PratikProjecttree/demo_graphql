@@ -6,6 +6,7 @@ using demo_graphql.Services;
 using demo_graphql.Core.Models;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using demo_graphql.Models.EmailModels;
 
 public static class ServiceExtensions
 {
@@ -14,6 +15,7 @@ public static class ServiceExtensions
         services.Configure<GraphQLConfigurationModel>(configuration.GetSection("GraphQLConfiguration"));
         services.Configure<SsoApiModel>(configuration.GetSection("SsoConfiguration"));
         services.Configure<ASMModel>(configuration.GetSection("ASMService"));
+        services.Configure<CampaignApiModel>(configuration.GetSection("CampaignService"));
     }
     public static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)
     {

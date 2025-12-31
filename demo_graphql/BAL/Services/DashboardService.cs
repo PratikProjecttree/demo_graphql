@@ -3,27 +3,40 @@ using demo_graphql.Models;
 using Npgsql;
 using static demo_graphql.Controllers.QueryInspector;
 
-namespace demo_graphql.Services
+namespace demo_graphql.BAL.Services
 {
     public class DashboardService : Controllers.IDashboardService
     {
         private readonly string _connectionString;
+        private readonly ILogger<DashboardService> _logger;
 
-        public DashboardService(IConfiguration configuration)
+        public DashboardService(IConfiguration configuration, ILogger<DashboardService> logger)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection")
-                ?? throw new InvalidOperationException("Connection string missing.");
+            _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string missing.");
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<Response> GetDashboardSummary()
         {
-            Response _response = new();
-            using var connection = new NpgsqlConnection(_connectionString);
-            var result = await connection.QueryAsync<DashboardSummary>(PostGresQuery.Get_dashboard_summary);
+            try
+            {
+                _logger.LogInformation("Retrieving dashboard summary");
 
-            _response.data = result;
-            _response.responseMessages.Add(new ResponseMessage { type = "S", message = "Success" });
-            return _response;
+                var response = new Response();
+                using var connection = new NpgsqlConnection(_connectionString);
+                var result = await connection.QueryAsync<DashboardSummary>(PostGresQuery.Get_dashboard_summary);
+
+                response.data = result;
+                response.responseMessages.Add(new ResponseMessage { type = "S", message = "Success" });
+
+                _logger.LogInformation("Dashboard summary retrieved successfully");
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving dashboard summary");
+                throw; // Re-throw to maintain original behavior
+            }
         }
     }
 }

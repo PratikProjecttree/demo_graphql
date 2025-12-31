@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using RestSharp;
 using System.Net;
 using System.Text.Json;
+using Microsoft.Extensions.Options;
 
 namespace demo_graphql.Services
 {
@@ -18,14 +19,15 @@ namespace demo_graphql.Services
         private readonly IRestClient _client;
         private readonly IRestRequest _request;
         private readonly ILogger<EmailQueueService> _logger;
+        private readonly IOptions<CampaignApiModel> _campaignApiModel;
 
-        public EmailQueueService(IConfiguration configuration, IRestClient client, ILogger<EmailQueueService> logger)
+        public EmailQueueService(IConfiguration configuration, IRestClient client, ILogger<EmailQueueService> logger, IOptions<CampaignApiModel> campaignApiModel)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection")
-                ?? throw new InvalidOperationException("Connection string missing.");
+            _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string missing.");
             _logger = logger;
             _request = new RestRequest();
             _client = client ?? throw new ArgumentNullException(nameof(client));
+            _campaignApiModel = campaignApiModel ?? throw new ArgumentNullException(nameof(campaignApiModel));
         }
 
         public async Task<IListResponse<EmailQueueResponse>> AddOrUpdateEmailQueue(EmailQueueRequest model)
@@ -44,7 +46,7 @@ namespace demo_graphql.Services
                         email_queue_status_id = 1
                     };
                     model.EmailQueueId = await connection.ExecuteScalarAsync<int>(PostGresQuery.ManageEmailQueue, param);
-                    if (model.EmailQueueId > 0) 
+                    if (model.EmailQueueId > 0)
                     {
                         await connection.ExecuteAsync(PostGresQuery.EmailQueueFrequencyUpdate, new { NoOfOccurence = 1, EmailQueueId = model.EmailQueueId });
                         _ = Task.Run(async () =>
@@ -248,7 +250,7 @@ namespace demo_graphql.Services
         {
             try
             {
-                var requestUrl = "https://api.uat.bapsapps.org/inbox/" + "templates" + "/" + templateId + "?approvalStatus=" + approvalStatus + "&status=" + status;
+                var requestUrl = _campaignApiModel.Value.Url + CommonURLEndpoint.CampaignTemplates + "/" + templateId + "?approvalStatus=" + approvalStatus + "&status=" + status;
                 var response = await Execute<List<CampaignTemplate>>(null, requestUrl, null, Method.GET);
                 return response.FirstOrDefault();
             }
@@ -262,7 +264,7 @@ namespace demo_graphql.Services
             try
             {
                 SingleResponse<CampaignsResponseModel> result = new();
-                var requestUrl = "https://api.uat.bapsapps.org/inbox/" + "campaigns/send";
+                var requestUrl = _campaignApiModel.Value.Url + CommonURLEndpoint.CampaignsSend;
                 var response = await Execute<CampaignsResponseModel>(null, requestUrl, model, Method.POST, emailQueueId);
                 result.Data = response;
                 return result;
@@ -272,15 +274,36 @@ namespace demo_graphql.Services
                 throw;
             }
         }
-        public async Task<IListResponse<EmailQueueResponse>> GetEmailQueue(int EventId)
+        public async Task<ISingleResponse<CampaignTemplateResponseModel>> UpdateAndCreateNewDynamicTemplateVersion(string templateId, string authorization, CampaignTemplateApiModel model)
         {
             try
             {
-                ListResponse<EmailQueueResponse> data = new();
-                using var connection = new NpgsqlConnection(_connectionString);
-                data.Data = await connection.QueryAsync<EmailQueueResponse>(PostGresQuery.GetEmailQueue, new { EventId });
-                data.Succeeded = true;
-                return data;
+                SingleResponse<CampaignTemplateResponseModel> result = new();
+                var requestUrl = _campaignApiModel.Value.Url + CommonURLEndpoint.CampaignTemplates + "/" + templateId;
+                var response = await Execute<CampaignTemplateResponseModel>(null, requestUrl, model, Method.PUT);
+                if (response != null)
+                {
+                    #region  :: APPROVE TEMPLATE ::
+                    ApprovalTemplateModel updateModel = new()
+                    {
+                        approvalStatus = "APPROVED"
+                    };
+                    var approveRequestUrl = _campaignApiModel.Value.Url + CommonURLEndpoint.CampaignTemplates + response.templateId + "/versions/" + response.templateVersion + "/approval-status";
+                    var approveData = await Execute<CampaignTemplateResponseModel>(null, approveRequestUrl, updateModel, Method.PUT);
+                    #endregion
+
+                    #region  :: ACTIVE TEMPLATE ::
+                    ActiveTemplateModel activeModel = new()
+                    {
+                        status = "ACTIVE"
+                    };
+                    var activeRequestUrl = _campaignApiModel.Value.Url + CommonURLEndpoint.CampaignTemplates + response.templateId + "/versions/" + response.templateVersion + "/status";
+                    var activeData = await Execute<CampaignTemplateResponseModel>(null, activeRequestUrl, activeModel, Method.PUT);
+                    #endregion
+                    result.Data = response;
+                    result.Succeeded = true;
+                }
+                return result;
             }
             catch (Exception ex)
             {
@@ -293,8 +316,8 @@ namespace demo_graphql.Services
             _request.Resource = url;
             _request.Method = method;
             _request.AddHeader("Content-type", "application/json");
-            _request.AddHeader("x-app-auth-id", "cid-fc51c66c61");
-            _request.AddHeader("x-app-auth-secret", "278b3e4a-b764-470b-adbc-5a8518280f80");
+            _request.AddHeader("x-app-auth-id", _campaignApiModel.Value.AppId);
+            _request.AddHeader("x-app-auth-secret", _campaignApiModel.Value.AppSecret);
 
             if (Method.POST == method || Method.PUT == method || Method.PATCH == method)
             {
@@ -317,42 +340,7 @@ namespace demo_graphql.Services
                 throw new ApplicationException(error);
             }
         }
-        public async Task<ISingleResponse<CampaignTemplateResponseModel>> UpdateAndCreateNewDynamicTemplateVersion(string templateId, string authorization, CampaignTemplateApiModel model)
-        {
-            try
-            {
-                SingleResponse<CampaignTemplateResponseModel> result = new();
-                var requestUrl = "https://api.uat.bapsapps.org/inbox/" + "templates" + "/" + templateId;
-                var response = await Execute<CampaignTemplateResponseModel>(null, requestUrl, model, Method.PUT);
-                if (response != null)
-                {
-                    #region  :: APPROVE TEMPLATE ::
-                    ApprovalTemplateModel updateModel = new()
-                    {
-                        approvalStatus = "APPROVED"
-                    };
-                    var approveRequestUrl = "https://api.uat.bapsapps.org/inbox/" + "templates" + "/" + response.templateId + "/versions/" + response.templateVersion + "/approval-status";
-                    var approveData = await Execute<CampaignTemplateResponseModel>(null, approveRequestUrl, updateModel, Method.PUT);
-                    #endregion
 
-                    #region  :: ACTIVE TEMPLATE ::
-                    ActiveTemplateModel activeModel = new()
-                    {
-                        status = "ACTIVE"
-                    };
-                    var activeRequestUrl = "https://api.uat.bapsapps.org/inbox/" + "templates" + "/" + response.templateId + "/versions/" + response.templateVersion + "/status";
-                    var activeData = await Execute<CampaignTemplateResponseModel>(null, activeRequestUrl, activeModel, Method.PUT);
-                    #endregion
-                    result.Data = response;
-                    result.Succeeded = true;
-                }
-                return result;
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        }
         private static Dictionary<string, object> ConvertJsonElements(
     Dictionary<string, object> input)
         {
