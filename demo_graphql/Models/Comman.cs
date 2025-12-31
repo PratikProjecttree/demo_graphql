@@ -32,6 +32,7 @@ namespace demo_graphql.Controllers
     {
         public const string Insert = "insert_";
         public const string Update = "update_";
+        public const string Delete = "delete_";
         public const string Query = "Query";
     }
     public static class CommonMessage

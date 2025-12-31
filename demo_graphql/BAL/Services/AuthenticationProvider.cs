@@ -128,7 +128,7 @@ public class AuthenticationService : IAuthenticationService
             if (objectName.Contains(OperationType.Update, StringComparison.OrdinalIgnoreCase))
                 actions.Add(ModuleAction.Edit);
 
-            if (objectName.Contains(OperationType.Update, StringComparison.OrdinalIgnoreCase))
+            if (objectName.Contains(OperationType.Delete, StringComparison.OrdinalIgnoreCase))
                 actions.Add(ModuleAction.Delete);
         }
 
