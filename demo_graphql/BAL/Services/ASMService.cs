@@ -4,17 +4,21 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using demo_graphql.BAL.IServices;
 using demo_graphql.Models;
+using demo_graphql.Core.Models;
+using Microsoft.Extensions.Options;
 
 namespace demo_graphql.BAL.Services
 {
     public class ASMService : IASMService
     {
         private readonly ILogger<ASMService> _logger;
+        private readonly ASMModel _asmModel;
         private readonly HttpClient _client;
-        public ASMService(ILogger<ASMService> logger, HttpClient client)
+        public ASMService(ILogger<ASMService> logger, HttpClient client, IOptions<ASMModel> asmModel)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _client = client;
+            _asmModel = asmModel.Value;
         }
         public async Task<List<RoleAccessViewModel>> GetAllAccessByRolePositionId(List<RolePositionModel> model)
         {
@@ -22,14 +26,13 @@ namespace demo_graphql.BAL.Services
             _logger.LogInformation("calling GetAllAccessByRolePositionId");
             AccessRolePositionModel requestModel = new()
             {
-                ApplicationId = "c59ad484-a608-4844-83b4-38378d28163a",
+                ApplicationId = _asmModel.ApplicationId,
                 Positions = model
             };
 
             HttpContent requestData = new StringContent(JsonConvert.SerializeObject(requestModel), Encoding.UTF8, "application/json");
 
-            var httpResponse = await _client.PostAsync("https://api.uat.bapsapps.org/asm/api/v1.0/" + "application-security", requestData);
-            stopwatch.Stop();
+            var httpResponse = await _client.PostAsync(_asmModel.Url + "application-security", requestData);
             if (!httpResponse.IsSuccessStatusCode)
             {
                 _logger.LogWarning("HTTP ASM call failed with status {StatusCode} in {Duration} ms - URL: {Url}", httpResponse.StatusCode, stopwatch.ElapsedMilliseconds, httpResponse?.RequestMessage?.RequestUri

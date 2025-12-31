@@ -3,7 +3,7 @@ using demo_graphql.BAL.Services;
 using demo_graphql.Controllers;
 using demo_graphql.Models;
 using demo_graphql.Services;
-using FMS.Core.Models;
+using demo_graphql.Core.Models;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -13,6 +13,7 @@ public static class ServiceExtensions
     {
         services.Configure<GraphQLConfigurationModel>(configuration.GetSection("GraphQLConfiguration"));
         services.Configure<SsoApiModel>(configuration.GetSection("SsoConfiguration"));
+        services.Configure<ASMModel>(configuration.GetSection("ASMService"));
     }
     public static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)
     {

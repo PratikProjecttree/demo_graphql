@@ -1,4 +1,4 @@
-namespace FMS.Core.Models
+namespace demo_graphql.Core.Models
 {
     public class SsoApiModel
     {

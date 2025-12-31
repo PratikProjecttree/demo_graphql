@@ -1,5 +1,5 @@
 using demo_graphql.Models;
-using FMS.Core.Models;
+using demo_graphql.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
