@@ -43,7 +43,7 @@ namespace demo_graphql.Services
 
             request.Content = content;
             var response = await _httpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
+            // response.EnsureSuccessStatusCode();
             var gLResponse = await response.Content.ReadAsStringAsync();
 
             //Response convert
@@ -51,9 +51,9 @@ namespace demo_graphql.Services
 
             // _response.data = gLResponseModel.data;
             if (!wfResponseModel.succeeded)
-                _response.responseMessages = new List<ResponseMessage> { new ResponseMessage() { type = "E", message = wfResponseModel.message ?? "Workflow request failed" } };
+                _response.responseMessages = new List<ResponseMessage> { new ResponseMessage() { type = "E", message = wfResponseModel.message ?? "Workflow request failed", statusCode = (int)response.StatusCode } };
             else
-                _response.responseMessages.Add(new ResponseMessage() { type = "S", message = "Success" });
+                _response.responseMessages.Add(new ResponseMessage() { type = "S", message = "Success", statusCode = (int)response.StatusCode });
 
             return _response;
         }
