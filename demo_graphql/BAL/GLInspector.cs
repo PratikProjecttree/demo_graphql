@@ -67,6 +67,62 @@ namespace demo_graphql.BAL
             return result;
         }
 
+        public static Dictionary<string, object> NormalizeHasuraData(Dictionary<string, object> flat)
+        {
+            var result = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var kv in flat)
+            {
+                // Global Hasura rule:
+                // relation: { data: {...} }  → relation.{...}
+                var key = kv.Key.Replace(".data.", ".");
+
+                // Edge case: ends with ".data"
+                if (key.EndsWith(".data", StringComparison.OrdinalIgnoreCase))
+                    key = key.Substring(0, key.Length - 5);
+
+                result[key] = kv.Value;
+            }
+
+            return result;
+        }
+
+        public static Dictionary<string, object> Unflatten(Dictionary<string, object> flat)
+        {
+            var root = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var kv in flat)
+            {
+                var path = kv.Key
+                    .Replace("]", "")
+                    .Split(new[] { '.', '[' }, StringSplitOptions.RemoveEmptyEntries);
+
+                IDictionary<string, object> current = root;
+
+                for (int i = 0; i < path.Length; i++)
+                {
+                    var part = path[i];
+                    bool isLast = i == path.Length - 1;
+
+                    if (isLast)
+                    {
+                        current[part] = kv.Value;
+                    }
+                    else
+                    {
+                        if (!current.ContainsKey(part))
+                        {
+                            current[part] = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+                        }
+
+                        current = (IDictionary<string, object>)current[part];
+                    }
+                }
+            }
+
+            return root;
+        }
+
         private static void ExtractFromValue(GraphQLValue value, List<ExtractedObject> output, string parentArgName)
         {
             if (value == null) return;

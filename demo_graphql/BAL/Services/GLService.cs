@@ -31,10 +31,6 @@ namespace demo_graphql.BAL.Services
             var (operationType, queryList) = GLInspector.GetOperationTypeAndTopLevelFieldNames(requestModel.query);
             var routingModels = await _dapperService.QueryAsync<GLRoutingModel>(PostGresQuery.Get_request_meta, new { queryList });
 
-            // extract payload and parameters
-            var objectDataList = GLInspector.ExtractObjectsArguments(requestModel.query);
-            Dictionary<string, object>? mergedPayload = objectDataList.Where(x => x.Role == ArgRole.Payload || x.Role == ArgRole.Parameter).SelectMany(x => x.Fields).ToDictionary(k => k.Key, v => (object)v.Value);
-
             foreach (var routingModel in routingModels ?? new List<GLRoutingModel>())
             {
                 #region :: Asm module access validation ::
@@ -70,7 +66,18 @@ namespace demo_graphql.BAL.Services
                 {
                     if (routingModel.workflow_meta != null)
                     {
-                        var wfResult = await _workFlowService.Request(routingModel.workflow_meta, mergedPayload);
+                        // extract payload and parameters
+                        var objectDataList = GLInspector.ExtractObjectsArguments(requestModel.query);
+                        Dictionary<string, object>? mergedPayload = objectDataList.Where(x => x.Role == ArgRole.Payload || x.Role == ArgRole.Parameter).SelectMany(x => x.Fields).ToDictionary(k => k.Key, v => (object)v.Value);
+
+                        // 1️⃣ Normalize Hasura "data" pattern
+                        var normalized = GLInspector.NormalizeHasuraData(mergedPayload);
+
+                        // 2️⃣ Convert flat → nested JSON
+                        var payload = GLInspector.Unflatten(normalized);
+
+                        // 3️⃣ Process workflow request
+                        var wfResult = await _workFlowService.Request(routingModel.workflow_meta, payload);
                         if (wfResult.responseMessages.Any(m => m.type == "E"))
                         {
                             _response.data = null;
